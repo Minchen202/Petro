@@ -114,3 +114,9 @@ function attack() {
         ws.send('attack');
     }
 }
+
+function forfeit() {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send('forfeit');
+    }
+}

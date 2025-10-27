@@ -185,6 +185,16 @@ class Battle:
                         self.send_state(f"{username} switched pets")
             except (ValueError, IndexError):
                 self.send_state("Invalid pet index")
+        elif action == "forfeit":
+            print(f"{username} forfeited!")
+            if username == self.player1_name:
+                self.winner = self.player2_name
+                self.add_log(f"{self.player1_name} forfeited!")
+                self.send_state(f"{self.player2_name} wins the battle!")
+            else:
+                self.winner = self.player1_name
+                self.add_log(f"{self.player2_name} forfeited!")
+                self.send_state(f"{self.player1_name} wins the battle!")
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
@@ -201,6 +211,7 @@ if __name__ == "__main__":
     try:
         for line in sys.stdin:
             command = line.strip()
+            print(f"Received command: {command}")
             if not command or command == "exit":
                 break
             
