@@ -6,10 +6,20 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const url = require('url');
 const fs = require('fs')
+const dotenv = require('dotenv');
+dotenv.config();
 
 const connectionAttempts = new Map();
 const app = express();
 const server = http.createServer(app);
+
+try {
+    global.DevMode = process.env.DEV_MODE;
+    console.log(`[Server] Dev mode: ${DevMode}`);
+} catch (error) {
+    global.DevMode = false;
+}
+
 
 // Create ws servers with da noServer option bc stackoverflow told me so (no idea what ts does)
 const wss = new WebSocket.Server({ noServer: true });
@@ -104,22 +114,41 @@ app.post('/signup', (req, res) => {
 
 app.post('/login', (req, res) => {
     const { username, pin } = req.body;
-    if (!username || !pin) {
-        return res.status(400).json({ message: 'Username and PIN are required.' });
-    }
+    if (DevMode && username === 'dev') {
+        db.run('DELETE FROM users WHERE username = ?', [username], (err) => {
+            if (err) {
+                console.error('Delete error:', err.message);
+                //return res.status(500).send('Failed to delete user.');
+            }
+            console.log(`[Server] User ${username} deleted.`);
 
-    db.get('SELECT * FROM users WHERE username = ? AND pin = ?', [username, pin], (err, row) => {
-        if (err) {
-            console.error('Login error:', err.message);
-            return res.status(500).json({ message: 'Internal server error.' });
+            db.run('INSERT INTO users (username, pin) VALUES (?, ?)', [username, pin], (err) => {
+                if (err) {
+                    console.error('Signup error:', err.message);
+                    //return res.status(409).send('Username already taken.');
+                }
+                console.log(`[Server] New user created: ${username}`);
+            });
+            return res.status(200).json({ message: 'Login successful.' });
+        });
+    } else {
+        if (!username || !pin) {
+            return res.status(400).json({ message: 'Username and PIN are required.' });
         }
-        if (row) {
-            console.log(`[Server] User logged in: ${username}`);
-            res.status(200).json({ message: 'Login successful.' });
-        } else {
-            res.status(401).json({ message: 'Invalid username or PIN.' });
-        }
-    });
+
+        db.get('SELECT * FROM users WHERE username = ? AND pin = ?', [username, pin], (err, row) => {
+            if (err) {
+                console.error('Login error:', err.message);
+                return res.status(500).json({ message: 'Internal server error.' });
+            }
+            if (row) {
+                console.log(`[Server] User logged in: ${username}`);
+                return res.status(200).json({ message: 'Login successful.' });
+            } else {
+                return res.status(401).json({ message: 'Invalid username or PIN.' });
+            }
+        });
+    }
 });
 
 app.post('/shutdown', (req, res) => {

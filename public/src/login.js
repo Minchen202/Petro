@@ -87,10 +87,11 @@ signupBtn.addEventListener('click', async () => {
 
 loginBtn.addEventListener('click', async () => {
     const username = loginUsernameEl.value.trim();
-    const pin = loginPinEl.value.trim();
+    const pin = loginPinEl.value.trim() || 0;
+    console.log('Login attempt:', { username, pin });
 
-    if (!username || !pin) {
-        alert('Please enter both username and PIN.');
+    if (!username) {
+        alert('Please enter a username.');
         return;
     }
 
