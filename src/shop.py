@@ -117,9 +117,6 @@ class Game:
 
     def get_state(self, message=""):
         inventory_details = []
-        inventory_details = []
-
-        inventory_details = []
         for pet_name in self.inventory:
             if pet_name in self.all_pet_stats:
                 stats = self.all_pet_stats[pet_name]

@@ -115,40 +115,39 @@ app.post('/signup', (req, res) => {
 app.post('/login', (req, res) => {
     const { username, pin } = req.body;
     if (DevMode && username === 'dev') {
-        db.run('DELETE FROM users WHERE username = ?', [username], (err) => {
-            if (err) {
-                console.error('Delete error:', err.message);
-                //return res.status(500).send('Failed to delete user.');
-            }
-            console.log(`[Server] User ${username} deleted.`);
-
-            db.run('INSERT INTO users (username, pin) VALUES (?, ?)', [username, pin], (err) => {
+        try {
+            db.run("UPDATE users SET game_state = NULL WHERE username = 'dev'",  (err) => {
+                if (err) {
+                    console.error('Login error:', err.message);
+                }
+                console.log(`[Server] User logged in: ${username}`);
+            });
+        } catch {
+            db.run("INSERT INTO users (username, pin) VALUES ('dev', '')", function(err) {
                 if (err) {
                     console.error('Signup error:', err.message);
-                    //return res.status(409).send('Username already taken.');
                 }
                 console.log(`[Server] New user created: ${username}`);
             });
-            return res.status(200).json({ message: 'Login successful.' });
-        });
-    } else {
-        if (!username || !pin) {
-            return res.status(400).json({ message: 'Username and PIN are required.' });
         }
-
-        db.get('SELECT * FROM users WHERE username = ? AND pin = ?', [username, pin], (err, row) => {
-            if (err) {
-                console.error('Login error:', err.message);
-                return res.status(500).json({ message: 'Internal server error.' });
-            }
-            if (row) {
-                console.log(`[Server] User logged in: ${username}`);
-                return res.status(200).json({ message: 'Login successful.' });
-            } else {
-                return res.status(401).json({ message: 'Invalid username or PIN.' });
-            }
-        });
+    } 
+    else if (!username || !pin) {
+        return res.status(400).json({ message: 'Username and PIN are required.' });
     }
+
+    db.get('SELECT * FROM users WHERE username = ? AND pin = ?', [username, pin], (err, row) => {
+        if (err) {
+            console.error('Login error:', err.message);
+            return res.status(500).json({ message: 'Internal server error.' });
+        }
+        if (row) {
+            console.log(`[Server] User logged in: ${username}`);
+            return res.status(200).json({ message: 'Login successful.' });
+        } else {
+            return res.status(401).json({ message: 'Invalid username or PIN.' });
+        }
+    });
+    
 });
 
 app.post('/shutdown', (req, res) => {
