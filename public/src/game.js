@@ -67,6 +67,8 @@ const playBtn = document.getElementById('play-btn');
 const buffSelectionModal = document.getElementById('buff-selection');
 const buffChoicesEl = document.getElementById('buff-choices');
 
+const inventoryCard = document.getElementById('inventory-card');
+
 const BUFF_DESCRIPTIONS = {
     1: "+1 Attack for all Pets",
     2: "+1 HP for all Pets",
@@ -212,7 +214,6 @@ function updateUI(state) {
         `;
         
         petCard.addEventListener('click', () => {
-            
             if (sellMode) {
                 if (ws && ws.readyState === WebSocket.OPEN) {
                     ws.send(`spezific_pet_sell ${pet.name}`);
@@ -220,6 +221,30 @@ function updateUI(state) {
                     messageEl.textContent = 'Connection lost. Please refresh the page.';
                     console.error('WebSocket is not connected');
                 }
+            }
+            else {
+                document.getElementById('inventory-container').style.display = 'none';
+                inventoryCard.style.display = '';
+                document.getElementById('card-title').textContent = pet.name;
+                document.getElementById('card-image').src = `/images/${pet.name}.png`;
+                document.getElementById('card-level').textContent = `Level: ${pet.level}`;
+                document.getElementById('card-atk').textContent = `ATK: ${pet.attack}`;
+                document.getElementById('card-hp').textContent = `HP: ${pet.hp}`;
+                document.getElementById('card-dodge').textContent = `Dodge: ${pet.dodge_chance}%`;
+                document.getElementById('card-sell-btn').addEventListener('click', () => {
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        inventoryCard.style.display = 'none';
+                        ws.send(`spezific_pet_sell ${pet.name}`);
+                        document.getElementById('inventory-container').style.display = 'flex';
+                    } else {
+                        messageEl.textContent = 'Connection lost. Please refresh the page.';
+                        console.error('WebSocket is not connected');
+                    }
+                });
+                document.getElementById('card-close-btn').addEventListener('click', () => {
+                    document.getElementById('inventory-container').style.display = 'flex';
+                    inventoryCard.style.display = 'none';
+                });
             }
         });
         

@@ -153,6 +153,60 @@ canvas {
     direction: ltr;
 }
 
+#card-title {
+    text-align: center;
+    margin-bottom: 15px;
+    color: var(--accent-gold);
+    font-size: 1.2rem;
+}
+
+#card-image {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin-right: 10px;
+}
+
+#inventory-card {
+    display: none;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background: #0044ff;
+    height: 500px;
+    width: 700px;
+    margin: 0 auto;
+}
+
+#inventory-card > img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin-right: 10px;
+}
+
+#inventory-card > .card-stats {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#inventory-card > .card-stats > * {
+    margin-bottom: 10px;
+}
+
+#inventory-card > .card-stats > *:last-child {
+    margin-bottom: 0;
+}
+
+#inventory-card > .card-stats {
+    margin-left: 10px;
+}
+
+#card-sell-btn {
+    margin-top: auto;
+}
+
 #inventory::-webkit-scrollbar {
     width: 12px;
 }
